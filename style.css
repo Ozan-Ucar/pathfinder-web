@@ -24,3 +24,5 @@ body {
 }
 
 .node.wall { background-color: #222; }
+.node.start { background-color: #4caf50; }
+.node.end { background-color: #f44336; }
