@@ -20,4 +20,7 @@ body {
     width: 25px;
     height: 25px;
     background-color: #fff;
+    user-select: none;
 }
+
+.node.wall { background-color: #222; }
