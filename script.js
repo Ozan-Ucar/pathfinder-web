@@ -107,7 +107,7 @@ function playAnimations(animations) {
             if(!node.classList.contains('start') && !node.classList.contains('end')) {
                 node.classList.add(anim.type === 'visit' ? 'visited' : 'path');
             }
-        }, i * 10);
+        }, i * 8);
     });
 }
 
