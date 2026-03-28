@@ -45,3 +45,13 @@ h1 { margin: 0; font-size: 24px; font-weight: normal; }
 .node.wall { background-color: #222; }
 .node.start { background-color: #4caf50; }
 .node.end { background-color: #f44336; }
+
+.node.visited {
+    background-color: #03a9f4;
+    transition: background-color 0.1s ease;
+}
+
+.node.path {
+    background-color: #ffeb3b;
+    transition: background-color 0.2s ease;
+}
