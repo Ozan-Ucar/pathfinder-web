@@ -40,6 +40,25 @@ grid.addEventListener('mouseleave', () => isDrawing = false);
 
 initGrid();
 
+function getNeighbors(r, c) {
+    const dirs = [{r:r-1,c},{r:r+1,c},{r,c:c-1},{r,c:c+1}];
+    return dirs.filter(n => n.r>=0 && n.r<ROWS && n.c>=0 && n.c<COLS);
+}
+
+function isWall(r, c) {
+    return document.getElementById(`node-${r}-${c}`).classList.contains('wall');
+}
+
+function backtrackPath(prev) {
+    const path = [];
+    let curr = `${endNode.r}-${endNode.c}`;
+    while(prev[curr]) {
+        path.unshift(prev[curr]);
+        curr = `${prev[curr].r}-${prev[curr].c}`;
+    }
+    return path;
+}
+
 // dijkstra
 function runDijkstra() {
     const unvisited = [];
@@ -62,42 +81,21 @@ function runDijkstra() {
         const current = unvisited.shift();
         
         if(distances[current.id] === Infinity) break;
-        
-        const nodeEl = document.getElementById(`node-${current.r}-${current.c}`);
-        if(nodeEl.classList.contains('wall')) continue;
+        if(isWall(current.r, current.c)) continue;
         
         animations.push({type: 'visit', r: current.r, c: current.c});
-        
         if(current.r === endNode.r && current.c === endNode.c) break;
         
-        const neighbors = [
-            {r: current.r-1, c: current.c},
-            {r: current.r+1, c: current.c},
-            {r: current.r, c: current.c-1},
-            {r: current.r, c: current.c+1}
-        ];
-        
-        for(const n of neighbors) {
-            if(n.r>=0 && n.r<ROWS && n.c>=0 && n.c<COLS) {
-                const nId = `${n.r}-${n.c}`;
-                if(distances[current.id] + 1 < distances[nId]) {
-                    distances[nId] = distances[current.id] + 1;
-                    prev[nId] = current;
-                }
+        for(const n of getNeighbors(current.r, current.c)) {
+            const nId = `${n.r}-${n.c}`;
+            if(distances[current.id] + 1 < distances[nId]) {
+                distances[nId] = distances[current.id] + 1;
+                prev[nId] = current;
             }
         }
     }
     
-    // backtrack path
-    const path = [];
-    let curr = `${endNode.r}-${endNode.c}`;
-    while(prev[curr]) {
-        path.unshift(prev[curr]);
-        curr = `${prev[curr].r}-${prev[curr].c}`;
-    }
-    
-    path.forEach(p => animations.push({type: 'path', r: p.r, c: p.c}));
-    return animations;
+    return {animations, prev};
 }
 
 function playAnimations(animations) {
@@ -111,11 +109,16 @@ function playAnimations(animations) {
     });
 }
 
-document.getElementById('startButton').addEventListener('click', () => {
-    // clear old
+function clearSearch() {
     document.querySelectorAll('.node').forEach(n => n.classList.remove('visited', 'path'));
-    const anims = runDijkstra();
-    playAnimations(anims);
+}
+
+document.getElementById('startButton').addEventListener('click', () => {
+    clearSearch();
+    const result = runDijkstra();
+    const path = backtrackPath(result.prev);
+    path.forEach(p => result.animations.push({type: 'path', r: p.r, c: p.c}));
+    playAnimations(result.animations);
 });
 
 document.getElementById('clearButton').addEventListener('click', () => {
