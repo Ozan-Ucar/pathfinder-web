@@ -98,6 +98,34 @@ function runDijkstra() {
     return {animations, prev};
 }
 
+// bfs
+function runBFS() {
+    const queue = [{r: startNode.r, c: startNode.c}];
+    const visited = new Set();
+    const prev = {};
+    const animations = [];
+    
+    visited.add(`${startNode.r}-${startNode.c}`);
+    
+    while(queue.length > 0) {
+        const current = queue.shift();
+        animations.push({type: 'visit', r: current.r, c: current.c});
+        
+        if(current.r === endNode.r && current.c === endNode.c) break;
+        
+        for(const n of getNeighbors(current.r, current.c)) {
+            const nId = `${n.r}-${n.c}`;
+            if(!visited.has(nId) && !isWall(n.r, n.c)) {
+                visited.add(nId);
+                prev[nId] = current;
+                queue.push(n);
+            }
+        }
+    }
+    
+    return {animations, prev};
+}
+
 function playAnimations(animations) {
     animations.forEach((anim, i) => {
         setTimeout(() => {
