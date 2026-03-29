@@ -15,16 +15,17 @@ body {
     align-items: center;
 }
 
-button {
+button, select {
     padding: 8px 16px;
     background: #333;
     color: white;
     border: 1px solid #555;
     cursor: pointer;
     border-radius: 4px;
+    font-size: 14px;
 }
 
-button:hover { background: #444; }
+button:hover, select:hover { background: #444; }
 
 h1 { margin: 0; font-size: 24px; font-weight: normal; }
 

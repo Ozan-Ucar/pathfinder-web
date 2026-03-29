@@ -143,10 +143,17 @@ function clearSearch() {
 
 document.getElementById('startButton').addEventListener('click', () => {
     clearSearch();
-    const result = runDijkstra();
-    const path = backtrackPath(result.prev);
-    path.forEach(p => result.animations.push({type: 'path', r: p.r, c: p.c}));
-    playAnimations(result.animations);
+    
+    const algo = document.getElementById('algoSelect').value;
+    let result;
+    if(algo === 'dijkstra') result = runDijkstra();
+    else if(algo === 'bfs') result = runBFS();
+    
+    if(result) {
+        const path = backtrackPath(result.prev);
+        path.forEach(p => result.animations.push({type: 'path', r: p.r, c: p.c}));
+        playAnimations(result.animations);
+    }
 });
 
 document.getElementById('clearButton').addEventListener('click', () => {
