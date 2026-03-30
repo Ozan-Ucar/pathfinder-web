@@ -126,6 +126,49 @@ function runBFS() {
     return {animations, prev};
 }
 
+
+// a* with manhattan
+function runAStar() {
+    const openSet = [{r: startNode.r, c: startNode.c, g: 0, f: 0}];
+    const gScore = {};
+    const prev = {};
+    const closed = new Set();
+    const animations = [];
+    
+    gScore[`${startNode.r}-${startNode.c}`] = 0;
+    
+    function heuristic(r, c) {
+        return Math.abs(r - endNode.r) + Math.abs(c - endNode.c);
+    }
+    
+    while(openSet.length > 0) {
+        openSet.sort((a, b) => a.f - b.f);
+        const current = openSet.shift();
+        const cId = `${current.r}-${current.c}`;
+        
+        if(closed.has(cId)) continue;
+        closed.add(cId);
+        if(isWall(current.r, current.c)) continue;
+        
+        animations.push({type: 'visit', r: current.r, c: current.c});
+        if(current.r === endNode.r && current.c === endNode.c) break;
+        
+        for(const n of getNeighbors(current.r, current.c)) {
+            const nId = `${n.r}-${n.c}`;
+            if(closed.has(nId) || isWall(n.r, n.c)) continue;
+            
+            const tentG = (gScore[cId] || 0) + 1;
+            if(tentG < (gScore[nId] || Infinity)) {
+                gScore[nId] = tentG;
+                prev[nId] = current;
+                openSet.push({r: n.r, c: n.c, g: tentG, f: tentG + heuristic(n.r, n.c)});
+            }
+        }
+    }
+    
+    return {animations, prev};
+}
+
 function playAnimations(animations) {
     animations.forEach((anim, i) => {
         setTimeout(() => {
@@ -148,6 +191,7 @@ document.getElementById('startButton').addEventListener('click', () => {
     let result;
     if(algo === 'dijkstra') result = runDijkstra();
     else if(algo === 'bfs') result = runBFS();
+    else if(algo === 'astar') result = runAStar();
     
     if(result) {
         const path = backtrackPath(result.prev);
