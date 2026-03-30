@@ -170,13 +170,14 @@ function runAStar() {
 }
 
 function playAnimations(animations) {
+    const speed = parseInt(document.getElementById('speedSlider').value) || 8;
     animations.forEach((anim, i) => {
         setTimeout(() => {
             const node = document.getElementById(`node-${anim.r}-${anim.c}`);
             if(!node.classList.contains('start') && !node.classList.contains('end')) {
                 node.classList.add(anim.type === 'visit' ? 'visited' : 'path');
             }
-        }, i * 8);
+        }, i * speed);
     });
 }
 
