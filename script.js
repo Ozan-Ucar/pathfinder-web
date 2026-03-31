@@ -227,3 +227,18 @@ document.getElementById('clearButton').addEventListener('click', () => {
         n.classList.remove('visited', 'path', 'wall');
     });
 });
+
+// random maze
+document.getElementById('mazeButton').addEventListener('click', () => {
+    document.querySelectorAll('.node').forEach(n => {
+        n.classList.remove('visited', 'path', 'wall');
+    });
+    for(let r=0; r<ROWS; r++) {
+        for(let c=0; c<COLS; c++) {
+            if((r===startNode.r && c===startNode.c) || (r===endNode.r && c===endNode.c)) continue;
+            if(Math.random() < 0.3) {
+                document.getElementById(`node-${r}-${c}`).classList.add('wall');
+            }
+        }
+    }
+});
