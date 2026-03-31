@@ -3,6 +3,7 @@ const COLS = 40;
 const grid = document.getElementById('grid-container');
 
 let isDrawing = false;
+let dragging = null;
 let startNode = {r: 10, c: 5};
 let endNode = {r: 10, c: 35};
 
@@ -17,14 +18,34 @@ function initGrid() {
             if(r === startNode.r && c === startNode.c) node.classList.add('start');
             if(r === endNode.r && c === endNode.c) node.classList.add('end');
             
-            node.addEventListener('mousedown', () => {
-                isDrawing = true;
-                toggleWall(node, r, c);
+            node.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if(node.classList.contains('start')) {
+                    dragging = 'start';
+                } else if(node.classList.contains('end')) {
+                    dragging = 'end';
+                } else {
+                    isDrawing = true;
+                    toggleWall(node, r, c);
+                }
             });
             node.addEventListener('mouseenter', () => {
                 if(isDrawing) toggleWall(node, r, c);
+                if(dragging) {
+                    const oldId = dragging === 'start' 
+                        ? `node-${startNode.r}-${startNode.c}` 
+                        : `node-${endNode.r}-${endNode.c}`;
+                    document.getElementById(oldId).classList.remove(dragging);
+                    if(dragging === 'start') startNode = {r, c};
+                    else endNode = {r, c};
+                    node.classList.remove('wall');
+                    node.classList.add(dragging);
+                }
             });
-            node.addEventListener('mouseup', () => isDrawing = false);
+            node.addEventListener('mouseup', () => {
+                isDrawing = false;
+                dragging = null;
+            });
             
             grid.appendChild(node);
         }
