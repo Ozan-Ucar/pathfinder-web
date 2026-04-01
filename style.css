@@ -64,3 +64,10 @@ label {
     align-items: center;
     gap: 6px;
 }
+
+#stats {
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 10px;
+    min-height: 18px;
+}

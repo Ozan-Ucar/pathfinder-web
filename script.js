@@ -217,8 +217,15 @@ document.getElementById('startButton').addEventListener('click', () => {
     
     if(result) {
         const path = backtrackPath(result.prev);
+        const visitCount = result.animations.length;
         path.forEach(p => result.animations.push({type: 'path', r: p.r, c: p.c}));
         playAnimations(result.animations);
+        
+        const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+        setTimeout(() => {
+            document.getElementById('stats').textContent = 
+                `visited: ${visitCount} | path: ${path.length} | algo: ${algo}`;
+        }, result.animations.length * speed);
     }
 });
 
