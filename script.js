@@ -233,6 +233,7 @@ document.getElementById('clearButton').addEventListener('click', () => {
     document.querySelectorAll('.node').forEach(n => {
         n.classList.remove('visited', 'path', 'wall');
     });
+    document.getElementById('stats').textContent = '';
 });
 
 // random maze
