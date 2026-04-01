@@ -4,6 +4,7 @@ const grid = document.getElementById('grid-container');
 
 let isDrawing = false;
 let dragging = null;
+let isRunning = false;
 let startNode = {r: 10, c: 5};
 let endNode = {r: 10, c: 35};
 
@@ -207,6 +208,7 @@ function clearSearch() {
 }
 
 document.getElementById('startButton').addEventListener('click', () => {
+    if(isRunning) return;
     clearSearch();
     
     const algo = document.getElementById('algoSelect').value;
@@ -216,6 +218,8 @@ document.getElementById('startButton').addEventListener('click', () => {
     else if(algo === 'astar') result = runAStar();
     
     if(result) {
+        isRunning = true;
+        document.getElementById('startButton').disabled = true;
         const path = backtrackPath(result.prev);
         const visitCount = result.animations.length;
         path.forEach(p => result.animations.push({type: 'path', r: p.r, c: p.c}));
@@ -225,6 +229,8 @@ document.getElementById('startButton').addEventListener('click', () => {
         setTimeout(() => {
             document.getElementById('stats').textContent = 
                 `visited: ${visitCount} | path: ${path.length} | algo: ${algo}`;
+            isRunning = false;
+            document.getElementById('startButton').disabled = false;
         }, result.animations.length * speed);
     }
 });
