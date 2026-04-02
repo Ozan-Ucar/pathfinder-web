@@ -75,7 +75,7 @@ input[type="range"] { accent-color: #4caf50; }
     transition: background-color 0.05s;
 }
 
-.node:hover { background-color: #2a2a2a; }
+.node:hover { background-color: #2a2a2a; cursor: crosshair; }
 .node.wall { background-color: #444; }
 .node.start { background-color: #4caf50; }
 .node.end { background-color: #e53935; }
