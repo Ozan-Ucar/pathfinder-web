@@ -9,7 +9,7 @@ let startNode = {r: 10, c: 5};
 let endNode = {r: 10, c: 35};
 
 function initGrid() {
-    grid.style.gridTemplateColumns = `repeat(${COLS}, 25px)`;
+    grid.style.gridTemplateColumns = `repeat(${COLS}, 24px)`;
     for(let r=0; r<ROWS; r++) {
         for(let c=0; c<COLS; c++) {
             const node = document.createElement('div');
