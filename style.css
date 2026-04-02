@@ -1,7 +1,7 @@
 body {
-    background-color: #1a1a1a;
-    color: white;
-    font-family: sans-serif;
+    background-color: #111;
+    color: #ccc;
+    font-family: 'Segoe UI', sans-serif;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -11,63 +11,81 @@ body {
 .header {
     margin: 20px;
     display: flex;
-    gap: 15px;
+    gap: 12px;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 button, select {
     padding: 8px 16px;
-    background: #333;
-    color: white;
-    border: 1px solid #555;
+    background: #1e1e1e;
+    color: #ccc;
+    border: 1px solid #333;
     cursor: pointer;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: background 0.15s;
 }
 
-button:hover, select:hover { background: #444; }
+button:hover, select:hover { background: #2a2a2a; }
+button:active { background: #333; }
+button:disabled { opacity: 0.4; cursor: default; }
 
-h1 { margin: 0; font-size: 24px; font-weight: normal; }
-
-#grid-container {
-    display: grid;
-    gap: 1px;
-    background-color: #333;
-    border: 1px solid #555;
-}
-
-.node {
-    width: 25px;
-    height: 25px;
-    background-color: #fff;
-    user-select: none;
-}
-
-.node.wall { background-color: #222; }
-.node.start { background-color: #4caf50; }
-.node.end { background-color: #f44336; }
-
-.node.visited {
-    background-color: #03a9f4;
-    transition: background-color 0.1s ease;
-}
-
-.node.path {
-    background-color: #ffeb3b;
-    transition: background-color 0.2s ease;
+h1 { 
+    margin: 0; 
+    font-size: 22px; 
+    font-weight: 500;
+    color: #eee;
+    letter-spacing: 1px;
 }
 
 label {
     font-size: 13px;
-    color: #999;
+    color: #777;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
+input[type="range"] { accent-color: #4caf50; }
+
 #stats {
-    color: #888;
-    font-size: 13px;
-    margin-bottom: 10px;
-    min-height: 18px;
+    color: #666;
+    font-size: 12px;
+    margin-bottom: 8px;
+    min-height: 16px;
+    letter-spacing: 0.5px;
+}
+
+#grid-container {
+    display: grid;
+    gap: 1px;
+    background-color: #222;
+    border: 1px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.node {
+    width: 24px;
+    height: 24px;
+    background-color: #1a1a1a;
+    user-select: none;
+    transition: background-color 0.05s;
+}
+
+.node:hover { background-color: #2a2a2a; }
+.node.wall { background-color: #444; }
+.node.start { background-color: #4caf50; }
+.node.end { background-color: #e53935; }
+
+.node.visited {
+    background-color: #1565c0;
+    transition: background-color 0.15s ease;
+}
+
+.node.path {
+    background-color: #fdd835;
+    transition: background-color 0.2s ease;
 }
