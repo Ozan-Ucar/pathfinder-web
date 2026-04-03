@@ -59,6 +59,7 @@ input[type="range"] { accent-color: #4caf50; }
 }
 
 #grid-container {
+    user-select: none;
     display: grid;
     gap: 1px;
     background-color: #222;
