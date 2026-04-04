@@ -244,9 +244,11 @@ document.getElementById('clearButton').addEventListener('click', () => {
 
 // random maze
 document.getElementById('mazeButton').addEventListener('click', () => {
+    if(isRunning) return;
     document.querySelectorAll('.node').forEach(n => {
         n.classList.remove('visited', 'path', 'wall');
     });
+    document.getElementById('stats').textContent = '';
     for(let r=0; r<ROWS; r++) {
         for(let c=0; c<COLS; c++) {
             if((r===startNode.r && c===startNode.c) || (r===endNode.r && c===endNode.c)) continue;
