@@ -256,3 +256,13 @@ document.getElementById('mazeButton').addEventListener('click', () => {
         }
     }
 });
+
+// keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if(e.code === 'Space') {
+        e.preventDefault();
+        document.getElementById('startButton').click();
+    }
+    if(e.key === 'c') document.getElementById('clearButton').click();
+    if(e.key === 'm') document.getElementById('mazeButton').click();
+});
