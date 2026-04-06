@@ -71,21 +71,16 @@ function isWall(r, c) {
     return document.getElementById(`node-${r}-${c}`).classList.contains('wall');
 }
 
-function backtrackPath(prev) {
-    const path = [];
-    let curr = `${endNode.r}-${endNode.c}`;
-    while(prev[curr]) {
-        path.unshift(prev[curr]);
-        curr = `${prev[curr].r}-${prev[curr].c}`;
-    }
-    return path;
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // dijkstra
-function runDijkstra() {
+async function runDijkstra() {
     const unvisited = [];
     const distances = {};
     const prev = {};
+    let visitCount = 0;
     
     for(let r=0; r<ROWS; r++) {
         for(let c=0; c<COLS; c++) {
@@ -96,7 +91,6 @@ function runDijkstra() {
     }
     
     distances[`${startNode.r}-${startNode.c}`] = 0;
-    const animations = [];
     
     while(unvisited.length > 0) {
         unvisited.sort((a, b) => distances[a.id] - distances[b.id]);
@@ -105,8 +99,16 @@ function runDijkstra() {
         if(distances[current.id] === Infinity) break;
         if(isWall(current.r, current.c)) continue;
         
-        animations.push({type: 'visit', r: current.r, c: current.c});
-        if(current.r === endNode.r && current.c === endNode.c) break;
+        if(current.r !== startNode.r || current.c !== startNode.c) {
+            if(current.r !== endNode.r || current.c !== endNode.c) {
+                document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
+                visitCount++;
+                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                await sleep(speed);
+            }
+        }
+        
+        if(current.r === endNode.r && current.c === endNode.c) return {prev, visitCount};
         
         for(const n of getNeighbors(current.r, current.c)) {
             const nId = `${n.r}-${n.c}`;
@@ -116,24 +118,32 @@ function runDijkstra() {
             }
         }
     }
-    
-    return {animations, prev};
+    return {prev, visitCount};
 }
 
 // bfs
-function runBFS() {
+async function runBFS() {
     const queue = [{r: startNode.r, c: startNode.c}];
     const visited = new Set();
     const prev = {};
-    const animations = [];
+    let visitCount = 0;
     
     visited.add(`${startNode.r}-${startNode.c}`);
     
     while(queue.length > 0) {
         const current = queue.shift();
-        animations.push({type: 'visit', r: current.r, c: current.c});
+        if(isWall(current.r, current.c)) continue;
+
+        if(current.r !== startNode.r || current.c !== startNode.c) {
+            if(current.r !== endNode.r || current.c !== endNode.c) {
+                document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
+                visitCount++;
+                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                await sleep(speed);
+            }
+        }
         
-        if(current.r === endNode.r && current.c === endNode.c) break;
+        if(current.r === endNode.r && current.c === endNode.c) return {prev, visitCount};
         
         for(const n of getNeighbors(current.r, current.c)) {
             const nId = `${n.r}-${n.c}`;
@@ -144,18 +154,16 @@ function runBFS() {
             }
         }
     }
-    
-    return {animations, prev};
+    return {prev, visitCount};
 }
 
-
 // a* with manhattan
-function runAStar() {
+async function runAStar() {
     const openSet = [{r: startNode.r, c: startNode.c, g: 0, f: 0}];
     const gScore = {};
     const prev = {};
     const closed = new Set();
-    const animations = [];
+    let visitCount = 0;
     
     gScore[`${startNode.r}-${startNode.c}`] = 0;
     
@@ -172,8 +180,16 @@ function runAStar() {
         closed.add(cId);
         if(isWall(current.r, current.c)) continue;
         
-        animations.push({type: 'visit', r: current.r, c: current.c});
-        if(current.r === endNode.r && current.c === endNode.c) break;
+        if(current.r !== startNode.r || current.c !== startNode.c) {
+            if(current.r !== endNode.r || current.c !== endNode.c) {
+                document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
+                visitCount++;
+                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                await sleep(speed);
+            }
+        }
+        
+        if(current.r === endNode.r && current.c === endNode.c) return {prev, visitCount};
         
         for(const n of getNeighbors(current.r, current.c)) {
             const nId = `${n.r}-${n.c}`;
@@ -187,52 +203,54 @@ function runAStar() {
             }
         }
     }
-    
-    return {animations, prev};
+    return {prev, visitCount};
 }
 
-function playAnimations(animations) {
-    const speed = parseInt(document.getElementById('speedSlider').value) || 8;
-    animations.forEach((anim, i) => {
-        setTimeout(() => {
-            const node = document.getElementById(`node-${anim.r}-${anim.c}`);
-            if(!node.classList.contains('start') && !node.classList.contains('end')) {
-                node.classList.add(anim.type === 'visit' ? 'visited' : 'path');
+async function drawPath(prev) {
+    const path = [];
+    let curr = `${endNode.r}-${endNode.c}`;
+    while(prev[curr]) {
+        path.unshift(prev[curr]);
+        curr = `${prev[curr].r}-${prev[curr].c}`;
+    }
+    
+    for(const p of path) {
+        if(p.r !== startNode.r || p.c !== startNode.c) {
+            if(p.r !== endNode.r || p.c !== endNode.c) {
+                document.getElementById(`node-${p.r}-${p.c}`).classList.add('path');
+                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                await sleep(speed * 2);
             }
-        }, i * speed);
-    });
+        }
+    }
+    return path.length;
 }
 
 function clearSearch() {
     document.querySelectorAll('.node').forEach(n => n.classList.remove('visited', 'path'));
 }
 
-document.getElementById('startButton').addEventListener('click', () => {
+document.getElementById('startButton').addEventListener('click', async () => {
     if(isRunning) return;
     clearSearch();
     
     const algo = document.getElementById('algoSelect').value;
+    isRunning = true;
+    document.getElementById('startButton').disabled = true;
+    
     let result;
-    if(algo === 'dijkstra') result = runDijkstra();
-    else if(algo === 'bfs') result = runBFS();
-    else if(algo === 'astar') result = runAStar();
+    if(algo === 'dijkstra') result = await runDijkstra();
+    else if(algo === 'bfs') result = await runBFS();
+    else if(algo === 'astar') result = await runAStar();
     
     if(result) {
-        isRunning = true;
-        document.getElementById('startButton').disabled = true;
-        const path = backtrackPath(result.prev);
-        const visitCount = result.animations.length;
-        path.forEach(p => result.animations.push({type: 'path', r: p.r, c: p.c}));
-        playAnimations(result.animations);
-        
-        const speed = parseInt(document.getElementById('speedSlider').value) || 8;
-        setTimeout(() => {
-            document.getElementById('stats').textContent = 
-                `visited: ${visitCount} | path: ${path.length} | algo: ${algo}`;
-            isRunning = false;
-            document.getElementById('startButton').disabled = false;
-        }, result.animations.length * speed);
+        const pathLength = await drawPath(result.prev);
+        document.getElementById('stats').textContent = 
+            `visited: ${result.visitCount} | path: ${pathLength} | algo: ${algo}`;
     }
+    
+    isRunning = false;
+    document.getElementById('startButton').disabled = false;
 });
 
 document.getElementById('clearButton').addEventListener('click', () => {
