@@ -5,6 +5,7 @@ const grid = document.getElementById('grid-container');
 let isDrawing = false;
 let dragging = null;
 let isRunning = false;
+let currentRunId = 0;
 let startNode = {r: 10, c: 5};
 let endNode = {r: 10, c: 35};
 
@@ -76,7 +77,7 @@ function sleep(ms) {
 }
 
 // dijkstra
-async function runDijkstra() {
+async function runDijkstra(runId) {
     const unvisited = [];
     const distances = {};
     const prev = {};
@@ -93,6 +94,8 @@ async function runDijkstra() {
     distances[`${startNode.r}-${startNode.c}`] = 0;
     
     while(unvisited.length > 0) {
+        if (currentRunId !== runId) return null;
+        
         unvisited.sort((a, b) => distances[a.id] - distances[b.id]);
         const current = unvisited.shift();
         
@@ -122,7 +125,7 @@ async function runDijkstra() {
 }
 
 // bfs
-async function runBFS() {
+async function runBFS(runId) {
     const queue = [{r: startNode.r, c: startNode.c}];
     const visited = new Set();
     const prev = {};
@@ -131,6 +134,8 @@ async function runBFS() {
     visited.add(`${startNode.r}-${startNode.c}`);
     
     while(queue.length > 0) {
+        if (currentRunId !== runId) return null;
+        
         const current = queue.shift();
         if(isWall(current.r, current.c)) continue;
 
@@ -158,7 +163,7 @@ async function runBFS() {
 }
 
 // a* with manhattan
-async function runAStar() {
+async function runAStar(runId) {
     const openSet = [{r: startNode.r, c: startNode.c, g: 0, f: 0}];
     const gScore = {};
     const prev = {};
@@ -172,6 +177,8 @@ async function runAStar() {
     }
     
     while(openSet.length > 0) {
+        if (currentRunId !== runId) return null;
+        
         openSet.sort((a, b) => a.f - b.f);
         const current = openSet.shift();
         const cId = `${current.r}-${current.c}`;
@@ -206,7 +213,7 @@ async function runAStar() {
     return {prev, visitCount};
 }
 
-async function drawPath(prev) {
+async function drawPath(prev, runId) {
     const path = [];
     let curr = `${endNode.r}-${endNode.c}`;
     while(prev[curr]) {
@@ -215,6 +222,7 @@ async function drawPath(prev) {
     }
     
     for(const p of path) {
+        if(currentRunId !== runId) return null;
         if(p.r !== startNode.r || p.c !== startNode.c) {
             if(p.r !== endNode.r || p.c !== endNode.c) {
                 document.getElementById(`node-${p.r}-${p.c}`).classList.add('path');
@@ -226,31 +234,43 @@ async function drawPath(prev) {
     return path.length;
 }
 
+function stopAnimation() {
+    currentRunId++; 
+    isRunning = false;
+    document.getElementById('startButton').disabled = false;
+}
+
 function clearSearch() {
     document.querySelectorAll('.node').forEach(n => n.classList.remove('visited', 'path'));
 }
 
 document.getElementById('startButton').addEventListener('click', async () => {
-    if(isRunning) return;
+    stopAnimation();
     clearSearch();
     
     const algo = document.getElementById('algoSelect').value;
+    const runId = currentRunId;
+    
     isRunning = true;
     document.getElementById('startButton').disabled = true;
     
     let result;
-    if(algo === 'dijkstra') result = await runDijkstra();
-    else if(algo === 'bfs') result = await runBFS();
-    else if(algo === 'astar') result = await runAStar();
+    if(algo === 'dijkstra') result = await runDijkstra(runId);
+    else if(algo === 'bfs') result = await runBFS(runId);
+    else if(algo === 'astar') result = await runAStar(runId);
     
-    if(result) {
-        const pathLength = await drawPath(result.prev);
-        document.getElementById('stats').textContent = 
-            `visited: ${result.visitCount} | path: ${pathLength} | algo: ${algo}`;
+    if(result && currentRunId === runId) {
+        const pathLength = await drawPath(result.prev, runId);
+        if(currentRunId === runId) {
+            document.getElementById('stats').textContent = 
+                `visited: ${result.visitCount} | path: ${pathLength} | algo: ${algo}`;
+            isRunning = false;
+            document.getElementById('startButton').disabled = false;
+        }
+    } else if (currentRunId === runId) {
+        isRunning = false;
+        document.getElementById('startButton').disabled = false;
     }
-    
-    isRunning = false;
-    document.getElementById('startButton').disabled = false;
 });
 
 document.getElementById('clearButton').addEventListener('click', () => {
