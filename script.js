@@ -106,7 +106,7 @@ async function runDijkstra(runId) {
             if(current.r !== endNode.r || current.c !== endNode.c) {
                 document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
                 visitCount++;
-                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
                 await sleep(speed);
             }
         }
@@ -143,7 +143,7 @@ async function runBFS(runId) {
             if(current.r !== endNode.r || current.c !== endNode.c) {
                 document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
                 visitCount++;
-                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
                 await sleep(speed);
             }
         }
@@ -191,7 +191,7 @@ async function runAStar(runId) {
             if(current.r !== endNode.r || current.c !== endNode.c) {
                 document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
                 visitCount++;
-                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
                 await sleep(speed);
             }
         }
@@ -226,7 +226,7 @@ async function drawPath(prev, runId) {
         if(p.r !== startNode.r || p.c !== startNode.c) {
             if(p.r !== endNode.r || p.c !== endNode.c) {
                 document.getElementById(`node-${p.r}-${p.c}`).classList.add('path');
-                const speed = parseInt(document.getElementById('speedSlider').value) || 8;
+                const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
                 await sleep(speed * 2);
             }
         }
