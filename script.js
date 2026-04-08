@@ -56,6 +56,10 @@ function initGrid() {
 
 function toggleWall(node, r, c) {
     if((r===startNode.r && c===startNode.c) || (r===endNode.r && c===endNode.c)) return;
+    
+    // prevent walls on visited or path nodes
+    if(node.classList.contains('visited') || node.classList.contains('path')) return;
+    
     node.classList.toggle('wall');
 }
 
