@@ -274,15 +274,21 @@ document.getElementById('startButton').addEventListener('click', async () => {
 });
 
 document.getElementById('clearButton').addEventListener('click', () => {
+    stopAnimation();
     document.querySelectorAll('.node').forEach(n => {
         n.classList.remove('visited', 'path', 'wall');
     });
     document.getElementById('stats').textContent = '';
 });
 
+// stop search if algo changes
+document.getElementById('algoSelect').addEventListener('change', () => {
+    stopAnimation();
+});
+
 // random maze
 document.getElementById('mazeButton').addEventListener('click', () => {
-    if(isRunning) return;
+    stopAnimation();
     document.querySelectorAll('.node').forEach(n => {
         n.classList.remove('visited', 'path', 'wall');
     });
