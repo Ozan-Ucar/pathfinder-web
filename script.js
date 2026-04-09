@@ -111,7 +111,7 @@ async function runDijkstra(runId) {
                 document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
                 visitCount++;
                 const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
-                await sleep(speed);
+                if(speed > 0) await sleep(speed);
             }
         }
         
@@ -148,7 +148,7 @@ async function runBFS(runId) {
                 document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
                 visitCount++;
                 const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
-                await sleep(speed);
+                if(speed > 0) await sleep(speed);
             }
         }
         
@@ -196,7 +196,7 @@ async function runAStar(runId) {
                 document.getElementById(`node-${current.r}-${current.c}`).classList.add('visited');
                 visitCount++;
                 const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
-                await sleep(speed);
+                if(speed > 0) await sleep(speed);
             }
         }
         
@@ -231,7 +231,7 @@ async function drawPath(prev, runId) {
             if(p.r !== endNode.r || p.c !== endNode.c) {
                 document.getElementById(`node-${p.r}-${p.c}`).classList.add('path');
                 const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
-                await sleep(speed * 2);
+                if(speed > 0) await sleep(Math.max(2, speed * 1.5));
             }
         }
     }
@@ -272,8 +272,11 @@ document.getElementById('startButton').addEventListener('click', async () => {
             document.getElementById('startButton').disabled = false;
         }
     } else if (currentRunId === runId) {
-        isRunning = false;
-        document.getElementById('startButton').disabled = false;
+         // show stats even if no path found
+         document.getElementById('stats').textContent = 
+                `visited: ${result ? result.visitCount : 0} | path: none | algo: ${algo}`;
+         isRunning = false;
+         document.getElementById('startButton').disabled = false;
     }
 });
 
@@ -285,18 +288,19 @@ document.getElementById('clearButton').addEventListener('click', () => {
     document.getElementById('stats').textContent = '';
 });
 
-// stop search if algo changes
+// stop if algo selection changes
 document.getElementById('algoSelect').addEventListener('change', () => {
     stopAnimation();
 });
 
-// random maze
+// maze generation
 document.getElementById('mazeButton').addEventListener('click', () => {
     stopAnimation();
     document.querySelectorAll('.node').forEach(n => {
         n.classList.remove('visited', 'path', 'wall');
     });
     document.getElementById('stats').textContent = '';
+    
     for(let r=0; r<ROWS; r++) {
         for(let c=0; c<COLS; c++) {
             if((r===startNode.r && c===startNode.c) || (r===endNode.r && c===endNode.c)) continue;
