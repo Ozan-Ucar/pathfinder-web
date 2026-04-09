@@ -51,11 +51,12 @@ label {
 input[type="range"] { accent-color: #4caf50; }
 
 #stats {
-    color: #666;
-    font-size: 12px;
-    margin-bottom: 8px;
-    min-height: 16px;
-    letter-spacing: 0.5px;
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 12px;
+    min-height: 18px;
+    letter-spacing: 0.8px;
+    transition: opacity 0.2s ease;
 }
 
 #grid-container {

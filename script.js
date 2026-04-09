@@ -68,8 +68,8 @@ grid.addEventListener('mouseleave', () => isDrawing = false);
 initGrid();
 
 function getNeighbors(r, c) {
-    const dirs = [{r:r-1,c},{r:r+1,c},{r,c:c-1},{r,c:c+1}];
-    return dirs.filter(n => n.r>=0 && n.r<ROWS && n.c>=0 && n.c<COLS);
+    const directions = [{r:r-1,c},{r:r+1,c},{r,c:c-1},{r,c:c+1}];
+    return directions.filter(node => node.r>=0 && node.r<ROWS && node.c>=0 && node.c<COLS);
 }
 
 function isWall(r, c) {
@@ -80,7 +80,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// dijkstra
+// dijkstra logic
 async function runDijkstra(runId) {
     const unvisited = [];
     const distances = {};
@@ -98,7 +98,7 @@ async function runDijkstra(runId) {
     distances[`${startNode.r}-${startNode.c}`] = 0;
     
     while(unvisited.length > 0) {
-        if (currentRunId !== runId) return null;
+        if (currentRunId !== runId) return null; // stop if run is stale
         
         unvisited.sort((a, b) => distances[a.id] - distances[b.id]);
         const current = unvisited.shift();
@@ -117,8 +117,8 @@ async function runDijkstra(runId) {
         
         if(current.r === endNode.r && current.c === endNode.c) return {prev, visitCount};
         
-        for(const n of getNeighbors(current.r, current.c)) {
-            const nId = `${n.r}-${n.c}`;
+        for(const neighbor of getNeighbors(current.r, current.c)) {
+            const nId = `${neighbor.r}-${neighbor.c}`;
             if(distances[current.id] + 1 < distances[nId]) {
                 distances[nId] = distances[current.id] + 1;
                 prev[nId] = current;
@@ -128,14 +128,14 @@ async function runDijkstra(runId) {
     return {prev, visitCount};
 }
 
-// bfs
+// bfs logic
 async function runBFS(runId) {
     const queue = [{r: startNode.r, c: startNode.c}];
-    const visited = new Set();
+    const visitedSet = new Set();
     const prev = {};
     let visitCount = 0;
     
-    visited.add(`${startNode.r}-${startNode.c}`);
+    visitedSet.add(`${startNode.r}-${startNode.c}`);
     
     while(queue.length > 0) {
         if (currentRunId !== runId) return null;
@@ -154,24 +154,24 @@ async function runBFS(runId) {
         
         if(current.r === endNode.r && current.c === endNode.c) return {prev, visitCount};
         
-        for(const n of getNeighbors(current.r, current.c)) {
-            const nId = `${n.r}-${n.c}`;
-            if(!visited.has(nId) && !isWall(n.r, n.c)) {
-                visited.add(nId);
+        for(const neighbor of getNeighbors(current.r, current.c)) {
+            const nId = `${neighbor.r}-${neighbor.c}`;
+            if(!visitedSet.has(nId) && !isWall(neighbor.r, neighbor.c)) {
+                visitedSet.add(nId);
                 prev[nId] = current;
-                queue.push(n);
+                queue.push(neighbor);
             }
         }
     }
     return {prev, visitCount};
 }
 
-// a* with manhattan
+// a* logic
 async function runAStar(runId) {
     const openSet = [{r: startNode.r, c: startNode.c, g: 0, f: 0}];
     const gScore = {};
     const prev = {};
-    const closed = new Set();
+    const closedSet = new Set();
     let visitCount = 0;
     
     gScore[`${startNode.r}-${startNode.c}`] = 0;
@@ -187,8 +187,8 @@ async function runAStar(runId) {
         const current = openSet.shift();
         const cId = `${current.r}-${current.c}`;
         
-        if(closed.has(cId)) continue;
-        closed.add(cId);
+        if(closedSet.has(cId)) continue;
+        closedSet.add(cId);
         if(isWall(current.r, current.c)) continue;
         
         if(current.r !== startNode.r || current.c !== startNode.c) {
@@ -202,15 +202,15 @@ async function runAStar(runId) {
         
         if(current.r === endNode.r && current.c === endNode.c) return {prev, visitCount};
         
-        for(const n of getNeighbors(current.r, current.c)) {
-            const nId = `${n.r}-${n.c}`;
-            if(closed.has(nId) || isWall(n.r, n.c)) continue;
+        for(const neighbor of getNeighbors(current.r, current.c)) {
+            const nId = `${neighbor.r}-${neighbor.c}`;
+            if(closedSet.has(nId) || isWall(neighbor.r, neighbor.c)) continue;
             
             const tentG = (gScore[cId] || 0) + 1;
             if(tentG < (gScore[nId] || Infinity)) {
                 gScore[nId] = tentG;
                 prev[nId] = current;
-                openSet.push({r: n.r, c: n.c, g: tentG, f: tentG + heuristic(n.r, n.c)});
+                openSet.push({r: neighbor.r, c: neighbor.c, g: tentG, f: tentG + heuristic(neighbor.r, neighbor.c)});
             }
         }
     }
@@ -218,24 +218,24 @@ async function runAStar(runId) {
 }
 
 async function drawPath(prev, runId) {
-    const path = [];
-    let curr = `${endNode.r}-${endNode.c}`;
-    while(prev[curr]) {
-        path.unshift(prev[curr]);
-        curr = `${prev[curr].r}-${prev[curr].c}`;
+    const pathNodes = [];
+    let currId = `${endNode.r}-${endNode.c}`;
+    while(prev[currId]) {
+        pathNodes.unshift(prev[currId]);
+        currId = `${prev[currId].r}-${prev[currId].c}`;
     }
     
-    for(const p of path) {
+    for(const pos of pathNodes) {
         if(currentRunId !== runId) return null;
-        if(p.r !== startNode.r || p.c !== startNode.c) {
-            if(p.r !== endNode.r || p.c !== endNode.c) {
-                document.getElementById(`node-${p.r}-${p.c}`).classList.add('path');
+        if(pos.r !== startNode.r || pos.c !== startNode.c) {
+            if(pos.r !== endNode.r || pos.c !== endNode.c) {
+                document.getElementById(`node-${pos.r}-${pos.c}`).classList.add('path');
                 const speed = 51 - (parseInt(document.getElementById('speedSlider').value) || 43);
                 if(speed > 0) await sleep(Math.max(2, speed * 1.5));
             }
         }
     }
-    return path.length;
+    return pathNodes.length;
 }
 
 function stopAnimation() {
@@ -272,7 +272,6 @@ document.getElementById('startButton').addEventListener('click', async () => {
             document.getElementById('startButton').disabled = false;
         }
     } else if (currentRunId === runId) {
-         // show stats even if no path found
          document.getElementById('stats').textContent = 
                 `visited: ${result ? result.visitCount : 0} | path: none | algo: ${algo}`;
          isRunning = false;
@@ -288,12 +287,12 @@ document.getElementById('clearButton').addEventListener('click', () => {
     document.getElementById('stats').textContent = '';
 });
 
-// stop if algo selection changes
+// algo selection changes
 document.getElementById('algoSelect').addEventListener('change', () => {
     stopAnimation();
 });
 
-// maze generation
+// maze generator
 document.getElementById('mazeButton').addEventListener('click', () => {
     stopAnimation();
     document.querySelectorAll('.node').forEach(n => {
